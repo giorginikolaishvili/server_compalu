@@ -18,7 +18,7 @@ module Services
       order_string = params[:order].present? ? "#{params[:order]}" : "last_name"
 
       User.joins(:profile)
-        .select("full_name, username, email, birth_date, graduate_date, employed")
+        .select("users.id, full_name, username, email, birth_date, graduate_date, employed")
         .where(where_string)
         .order(order_string)
         .paginate(:page => params[:page], :per_page=>params[:limit])
@@ -27,8 +27,13 @@ module Services
     def create
       raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
       user = User.new(user_params)
-      user.password = params[:password]
+      user.password = (0...12).map { ('a'..'z').to_a[rand(26)] }.join
       user.save!
+
+      mail_params = {ids: [user.id], subject: 'სტუდენტთა ბაზის პაროლი',
+                     body: "მომხმარებელი #{user.username} წარმატებით დარეგისტრირდა სტუდენტთა ბაზაში, დაგენერირებული პაროლი: #{user.password}"}
+      UserMailer.new.send_user_info(mail_params)
+
       {success: true}
     rescue => e
       {errs: [e.to_s], has_error: true}
