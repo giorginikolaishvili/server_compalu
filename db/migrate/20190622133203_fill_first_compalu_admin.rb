@@ -1,6 +1,7 @@
-class FillFirstAdmin < ActiveRecord::Migration[5.2]
+class FillFirstCompaluAdmin < ActiveRecord::Migration[5.2]
   def up
-   profile_id = Profile.find_by(name: 'admin').id
+    User.delete_all
+    profile_id = Profile.find_by(name: 'admin').id
     User.create(username: 'Gigi25', name: 'Giorgi', last_name: 'Nikolaishvili',
                 email: 'giorgi.nikolaishvili25@gmail.com', profile_id: profile_id,
                 password: 'gigi25')
