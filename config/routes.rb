@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     get 'users/get_current_user'
     get 'users/:id/edit' => 'users#edit'
     post 'users/send_mail'
+    post 'users/password_reset'
     resources :users, except: :show
 
     post 'auth/login', to: 'authentication#login'
