@@ -25,7 +25,7 @@ module Services
     end
 
     def create
-      raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
+      #raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
       user = User.new(user_params)
       user.password = (0...12).map { ('a'..'z').to_a[rand(26)] }.join
       user.save!
@@ -63,10 +63,25 @@ module Services
       {errs: [e.to_s], has_error: true}
     end
 
+    def check_user_admin
+      User.find(@current_user_id).profile.name == 'admin'
+    end
+
     def destroy
       raise 'მომხმარებელი არ არის ადმინი' unless check_user_admin
       @user = User.find(params[:id])
       @user.destroy!
+    rescue => e
+      {errs: [e.to_s], has_error: true}
+    end
+
+    def password_reset
+      @user = User.find(params[:id])
+
+      raise 'ძველი პაროლი არასწორია' unless @user.password == params[:old_password]
+      @user.password = params[:new_password]
+      @user.save!
+
     rescue => e
       {errs: [e.to_s], has_error: true}
     end

@@ -42,6 +42,14 @@ class UsersController < ApplicationController
     render json: {data: data}
   end
 
+  def password_reset
+    data = Services::UsersService.new(params, session[:user_id]).password_reset
+
+    return render json: {errs: data[:errs]}, status: 500 if data[:has_error]
+
+    render json: {data: data}
+  end
+
   def send_mail
     data = Services::UsersService.new(params, session[:user_id]).send_mail
 
