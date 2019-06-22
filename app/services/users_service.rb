@@ -8,17 +8,12 @@ module Services
     end
 
     def list
-      where_string = params[:key].present? ? "#{params[:key]} LIKE #{params[:input]}" : ""
-
-      if params[:input].class != String && where_string.present? && !params[:input].nil?
-
-        where_string = "#{params[:key]} = #{params[:input]}"
-      end
-
-      order_string = params[:order].present? ? "#{params[:order]}" : "last_name"
+      where_string = ""
+      where_string = "full_name = #{params[:input]}" if params[:input].present?
+      order_string = "#{params[:property]} #{params[:direction]} "
 
       User.joins(:profile)
-        .select("users.id, full_name, username, email, birth_date, graduate_date, employed")
+        .select("users.id, full_name, username, email, birth_date, graduate_date, employed, created_at")
         .where(where_string)
         .order(order_string)
         .paginate(:page => params[:page], :per_page=>params[:limit])
