@@ -9,11 +9,12 @@ module Services
 
     def list
       where_string = ""
-      where_string = "full_name = #{params[:input]}" if params[:input].present?
+      where_string = "full_name LIKE '%#{params[:input]}%'" if params[:input].present?
       order_string = "#{params[:property]} #{params[:direction]} "
 
       User.joins(:profile)
-        .select("users.id, full_name, username, email, birth_date, graduate_date, employed, created_at")
+        .select("users.id, full_name, username, email, birth_date, graduate_date, employed, created_at,
+                 users.name, last_name")
         .where(where_string)
         .order(order_string)
         .paginate(:page => params[:page], :per_page=>params[:limit])
@@ -73,10 +74,11 @@ module Services
     def password_reset
       @user = User.find(params[:id])
 
-      raise 'ძველი პაროლი არასწორია' unless @user.password == params[:old_password]
+      raise 'ძველი პაროლი არასწორია' unless @user.authenticate(params[:old_password])
       @user.password = params[:new_password]
       @user.save!
 
+      {success: true}
     rescue => e
       {errs: [e.to_s], has_error: true}
     end
