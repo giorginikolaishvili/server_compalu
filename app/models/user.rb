@@ -4,6 +4,9 @@ class User < ApplicationRecord
   before_create :set_timestamps_create
   before_save :set_timestamps, :set_full_name
 
+  has_many :user_portfolios, dependent: :destroy
+  accepts_nested_attributes_for :user_portfolios, allow_destroy: true
+
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
   validates :email, presence: true,

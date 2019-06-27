@@ -9,13 +9,16 @@ module Services
 
     def list
       where_string = ""
-      where_string = "full_name LIKE '%#{params[:input]}%'" if params[:input].present?
+      where_string += " AND full_name LIKE '%#{params[:input]}%'" if params[:input].present?
+      where_string += " AND employed = #{params[:is_employed]}" unless params[:is_employed].nil?
+      where_string += " AND apply_date >= :start_date" unless params[:start_date].nil?
+      where_string += " AND graduate_date <= :end_date" unless params[:end_date].nil?
       order_string = "#{params[:property]} #{params[:direction]} "
 
       User.joins(:profile)
-        .select("users.id, full_name, username, email, birth_date, graduate_date, employed, created_at,
-                 users.name, last_name")
-        .where(where_string)
+        .select("users.id, full_name, email, birth_date, graduate_date, apply_date, employed, created_at,
+                 users.name, last_name, hobby")
+        .where("1 = 1" + where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date)
         .order(order_string)
         .paginate(:page => params[:page], :per_page=>params[:limit])
     end
@@ -24,10 +27,11 @@ module Services
       #raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
       user = User.new(user_params)
       user.password = (0...12).map { ('a'..'z').to_a[rand(26)] }.join
+
       user.save!
 
       mail_params = {ids: [user.id], subject: 'სტუდენტთა ბაზის პაროლი',
-                     body: "მომხმარებელი #{user.username} წარმატებით დარეგისტრირდა სტუდენტთა ბაზაში, დაგენერირებული პაროლი: #{user.password}"}
+                     body: "მომხმარებელი #{user.email} წარმატებით დარეგისტრირდა სტუდენტთა ბაზაში, დაგენერირებული პაროლი: #{user.password}"}
       UserMailer.new.send_user_info(mail_params)
 
       {success: true}
@@ -39,7 +43,7 @@ module Services
       if user_is_student? && current_user_id != params[:id]
         raise 'სტუდენტს არ აქვს რედაქტირების უფლება '
       end
-      raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
+
       @user = User.find(params[:id])
       @user.update!(user_params)
 
@@ -53,8 +57,10 @@ module Services
         raise 'სტუდენტს არ აქვს ნახვის უფლება '
       end
       @user = User.find(params[:id])
-      @user.as_json(only: [:username, :name, :last_name, :email, :birth_date, :graduate_date, :apply_date],
-                            include: {profile: {only: [:name]}})
+      @user.as_json(only: [:name, :last_name, :email, :birth_date, :graduate_date, :apply_date],
+                            include: {profile: {only: [:name]},
+                                      user_portfolios: {only: [:description, :company_name,
+                                            :id, :start_date, :end_date]}})
     rescue => e
       {errs: [e.to_s], has_error: true}
     end
@@ -99,8 +105,9 @@ module Services
       User.find(current_user_id).profile.name == 'student'
     end
     def user_params
-      params.require(:user).permit(:username, :email, :password, :profile_id, :name, :last_name, :apply_date,
-                                   :graduate_date, :employed)
+      params.require(:user).permit(:email, :password, :profile_id, :name, :last_name, :apply_date,
+                                   :graduate_date, :employed, :hobby, :birth_date,
+                                   user_portfolios_attributes: [:id, :description, :start_date, :end_date, :company_name, :_destroy])
     end
 
   end

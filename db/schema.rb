@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_22_133203) do
+ActiveRecord::Schema.define(version: 2019_06_27_174621) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,8 +19,15 @@ ActiveRecord::Schema.define(version: 2019_06_22_133203) do
     t.string "name", limit: 50, null: false
   end
 
+  create_table "user_portfolios", force: :cascade do |t|
+    t.string "description"
+    t.date "start_date"
+    t.date "end_date"
+    t.string "company_name"
+    t.bigint "user_id", null: false
+  end
+
   create_table "users", force: :cascade do |t|
-    t.string "username", limit: 50, null: false
     t.string "name", limit: 50, null: false
     t.string "last_name", limit: 50, null: false
     t.string "email", limit: 100, null: false
@@ -34,8 +41,10 @@ ActiveRecord::Schema.define(version: 2019_06_22_133203) do
     t.boolean "employed", default: false, null: false
     t.string "full_name", default: "", null: false
     t.string "image_base64"
+    t.string "hobby"
     t.index ["profile_id"], name: "index_users_on_profile_id"
   end
 
+  add_foreign_key "user_portfolios", "users"
   add_foreign_key "users", "profiles"
 end
