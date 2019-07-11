@@ -57,7 +57,7 @@ module Services
         raise 'სტუდენტს არ აქვს ნახვის უფლება '
       end
       @user = User.find(params[:id])
-      @user.as_json(only: [:name, :last_name, :email, :birth_date, :graduate_date, :apply_date],
+      @user.as_json(only: [:name, :last_name, :email, :birth_date, :graduate_date, :apply_date, :hobby],
                             include: {profile: {only: [:name]},
                                       user_portfolios: {only: [:description, :company_name,
                                             :id, :start_date, :end_date]}})
