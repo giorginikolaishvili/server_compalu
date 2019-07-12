@@ -58,9 +58,9 @@ module Services
       end
       @user = User.find(params[:id])
       @user.as_json(only: [:name, :last_name, :email, :birth_date, :graduate_date, :apply_date, :hobby],
-                            include: {profile: {only: [:name]},
+                            include: {profile: {only: [:id, :name]},
                                       user_portfolios: {only: [:description, :company_name,
-                                            :id, :start_date, :end_date]}})
+                                            :id, :start_date, :end_date, :job_title]}})
     rescue => e
       {errs: [e.to_s], has_error: true}
     end
@@ -104,10 +104,12 @@ module Services
     def user_is_student?
       User.find(current_user_id).profile.name == 'student'
     end
+
     def user_params
       params.require(:user).permit(:email, :password, :profile_id, :name, :last_name, :apply_date,
                                    :graduate_date, :employed, :hobby, :birth_date,
-                                   user_portfolios_attributes: [:id, :description, :start_date, :end_date, :company_name, :_destroy])
+                                   user_portfolios_attributes: [:id, :description, :start_date, :end_date, :company_name,
+                                                                :job_title, :_destroy])
     end
 
   end
