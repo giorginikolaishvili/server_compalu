@@ -57,8 +57,8 @@ module Services
         raise 'სტუდენტს არ აქვს ნახვის უფლება '
       end
       @user = User.find(params[:id])
-      @user.as_json(only: [:name, :last_name, :email, :birth_date, :graduate_date, :apply_date, :hobby],
-                            include: {profile: {only: [:id, :name]},
+      @user.as_json(except: [:password_digest],
+                    include: {profile: {only: [:id, :name]},
                                       user_portfolios: {only: [:description, :company_name,
                                             :id, :start_date, :end_date, :job_title]}})
     rescue => e
@@ -107,7 +107,7 @@ module Services
 
     def user_params
       params.require(:user).permit(:email, :password, :profile_id, :name, :last_name, :apply_date,
-                                   :graduate_date, :employed, :hobby, :birth_date,
+                                   :graduate_date, :employed, :hobby, :birth_date, :image_base64,
                                    user_portfolios_attributes: [:id, :description, :start_date, :end_date, :company_name,
                                                                 :job_title, :_destroy])
     end
