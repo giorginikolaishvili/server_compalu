@@ -1,7 +1,7 @@
 require_relative '../services/users_service'
 
 class UsersController < ApplicationController
-  before_action :authorize_request, except: [:list]
+  before_action :authorize_request, except: [:list, :send_mail]
 
   def list
     data = Services::UsersService.new(params).list
