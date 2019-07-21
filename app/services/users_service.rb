@@ -20,9 +20,12 @@ module Services
                 .where("1 = 1" + where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date)
                 .order(order_string)
                 .paginate(:page => params[:page], :per_page => params[:limit])
+
       {
           users: arr,
-          legnth: arr.count
+          length: arr.length,
+          page: params[:page],
+          limit: params[:limit]
       }
     end
 
