@@ -24,7 +24,7 @@ module Services
     end
 
     def create
-      #raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
+      raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
       user = User.new(user_params)
       user.password = (0...12).map { ('a'..'z').to_a[rand(26)] }.join
 
