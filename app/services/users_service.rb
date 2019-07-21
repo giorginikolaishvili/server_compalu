@@ -14,19 +14,22 @@ module Services
       where_string += " AND apply_date >= :start_date" unless params[:start_date].nil?
       where_string += " AND graduate_date <= :end_date" unless params[:end_date].nil?
       order_string = "#{params[:property]} #{params[:direction]} "
-
-      User.joins(:profile)
-        .select("users.id, full_name, email, birth_date, graduate_date, apply_date, employed, created_at,
+      arr = User.joins(:profile)
+                .select("users.id, full_name, email, birth_date, graduate_date, apply_date, employed, created_at,
                  users.name, last_name, hobby, profile_id, profiles.name as profile_name")
-        .where("1 = 1" + where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date)
-        .order(order_string)
-        .paginate(:page => params[:page], :per_page=>params[:limit])
+                .where("1 = 1" + where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date)
+                .order(order_string)
+                .paginate(:page => params[:page], :per_page => params[:limit])
+      {
+          users: arr,
+          legnth: arr.count
+      }
     end
 
     def create
       raise 'მომხმარებელი არ არის ადმინი' unless user_is_admin?
       user = User.new(user_params)
-      user.password = (0...12).map { ('a'..'z').to_a[rand(26)] }.join
+      user.password = (0...12).map {('a'..'z').to_a[rand(26)]}.join
 
       user.save!
 
@@ -59,8 +62,8 @@ module Services
       @user = User.find(params[:id])
       @user.as_json(except: [:password_digest],
                     include: {profile: {only: [:id, :name]},
-                                      user_portfolios: {only: [:description, :company_name,
-                                            :id, :start_date, :end_date, :job_title]}})
+                              user_portfolios: {only: [:description, :company_name,
+                                                       :id, :start_date, :end_date, :job_title]}})
     rescue => e
       {errs: [e.to_s], has_error: true}
     end
