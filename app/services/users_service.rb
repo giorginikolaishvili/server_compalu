@@ -53,7 +53,7 @@ module Services
     end
 
     def edit
-      if user_is_student? && current_user_id != params[:id]
+      if user_is_student? && current_user_id != params[:id].to_i
         raise 'სტუდენტს არ აქვს ნახვის უფლება '
       end
       @user = User.find(params[:id])
