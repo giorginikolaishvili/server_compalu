@@ -13,7 +13,8 @@ module Services
       where_string += " AND employed = #{params[:is_employed]}" unless params[:is_employed].nil?
       where_string += " AND apply_date >= :start_date" unless params[:start_date].nil?
       where_string += " AND graduate_date <= :end_date" unless params[:end_date].nil?
-      order_string = "#{params[:property]} #{params[:direction]} "
+      order_string = params[:property].present? ? "#{params[:property]} #{params[:direction]} " : "created_at desc"
+
 
       arr = User.joins(:profile)
                 .select("users.id, full_name, email, birth_date, graduate_date, apply_date, employed, created_at,
