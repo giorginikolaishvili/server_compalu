@@ -28,7 +28,8 @@ module Services
       without_limit = User.joins(:profile)
           .select("users.id, full_name, email, birth_date, graduate_date, apply_date, employed, created_at,
                  users.name, last_name, hobby, profile_id, profiles.name as profile_name")
-          .where("1 = 1" + where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date)
+          .where(where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date,
+                 stud: 'student', admin: 'admin')
           .order(order_string)
 
       {
