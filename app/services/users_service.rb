@@ -8,7 +8,8 @@ module Services
     end
 
     def list
-      where_string = ""
+      admin_filter = !!params[:admin]
+      where_string = admin_filter ? "profiles.name = :admin" : "profiles.name = :stud"
       where_string += " AND full_name LIKE '%#{params[:input]}%'" if params[:input].present?
       where_string += " AND employed = #{params[:is_employed]}" unless params[:is_employed].nil?
       where_string += " AND apply_date >= :start_date" unless params[:start_date].nil?
@@ -19,7 +20,8 @@ module Services
       arr = User.joins(:profile)
                 .select("users.id, full_name, email, birth_date, graduate_date, apply_date, employed, created_at,
                  users.name, last_name, hobby, profile_id, profiles.name as profile_name")
-                .where("1 = 1" + where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date)
+                .where(where_string, start_date: params[:start_date]&.to_date, end_date: params[:end_date]&.to_date,
+                       admin: 'admin', stud: 'student')
                 .order(order_string)
                 .paginate(:page => params[:page], :per_page => params[:limit])
 
