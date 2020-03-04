@@ -10,7 +10,7 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'jwt'
 gem 'pry-rails'
 # Use Puma as the app server
-gem 'puma', '~> 3.11'
+gem 'puma', '~> 3.12'
 # Use SCSS for stylesheets
 gem 'bootstrap-sass', '~> 3.3.7'
 gem 'jquery-rails'
